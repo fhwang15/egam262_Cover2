@@ -7,6 +7,11 @@ public class PlayerMovement : MonoBehaviour
     //float variable for speed of shooting, moving around.
     //float original speed
 
+    public float changeInSpeed;
+    public float originShootingSpeed;
+    public float originSpeed;
+
+    public GameObject bulletPrefab;
 
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -57,9 +62,12 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator shootingDelay()
     {
+        yield return WaitforSeconds(originShootingSpeed);
+        GameObject shooooot = Instantiate(bulletPrefab, transform.position);
+        Rigidbody2D rb = shooooot.GetComponent<Rigidbody2D>();
+        rb.AddForce(Vector2.right * originShootingSpeed, ForceMode2D.Impulse);
         yield return null;
     }
-    //yield return WaitforSeconds(the variable);
     //
     //Instantiate(bulletPrefab, this.transform.position.x, this.transform.position.y);
     //Instantiate(bulletPrefab, this.transform.position.x, this.transform.position.y); 
