@@ -2,15 +2,13 @@ using UnityEngine;
 
 public class PowerUpManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    //만약 플레이어
+
+    //public list<bool> 하여튼 뭐 그런게 있다쳐
+
+    //리스트[플레이어무브먼트] = 트루트루
+
+
 }
