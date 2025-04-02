@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
     public float originShootingSpeed;
     public float originSpeed;
 
-    public GameObject bulletPrefab;
+    public Bullet bulletPrefab;
 
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -23,57 +23,42 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Basic Movement of the PlayerCharacter (Not in physics)
+        Vector3 movement = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0);
+        transform.Translate(movement.normalized * (originSpeed + changeInSpeed) * Time.deltaTime);
 
-        //if getkeydown x, then it will piu piu shoot the bullet.
-        //Attack();
+        //Attack
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            Attack();
+        }
 
-        //get Key up and down
-        //verticalMove();
-
-        //get key left & right
-        //horizontalMove();
 
         //get key space
         //use the power drop if they exist.
     }
-
-    //Player movement
-    // Mostly Up and down, 
-
-    private void verticalMove()
-    {
-
-    }
-
-    private void horizontalMove() 
-    { 
-
-    }
-
     
 
     private void Attack()
     {
-
-
-        //Coroutine for shooting.
-        //StartCoroutine(shootingDelay());
+        StartCoroutine(shootingDelay());
     }
 
     IEnumerator shootingDelay()
     {
-        yield return WaitforSeconds(originShootingSpeed);
-        GameObject shooooot = Instantiate(bulletPrefab, transform.position);
+        Bullet shooooot = Instantiate<Bullet>(bulletPrefab, transform.position, Quaternion.identity); 
         Rigidbody2D rb = shooooot.GetComponent<Rigidbody2D>();
         rb.AddForce(Vector2.right * originShootingSpeed, ForceMode2D.Impulse);
-        yield return null;
+
+        yield return new WaitForSeconds(originShootingSpeed);
     }
-    //
-    //Instantiate(bulletPrefab, this.transform.position.x, this.transform.position.y);
-    //Instantiate(bulletPrefab, this.transform.position.x, this.transform.position.y); 
-    //two at a time
-    //yield return null;
 
-    //Collider that will destroy + get rid of the life.
-
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Enemy enemyCollided = collision.gameObject.GetComponent<Enemy>();
+        if (enemyCollided != null)
+        {
+            Destroy(this.gameObject);
+        }
+    }
 }
