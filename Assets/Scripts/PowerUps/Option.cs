@@ -14,8 +14,7 @@ public class Option : MonoBehaviour, IPowerUps
     private GameObject optionPrefab;
     private List<GameObject> activeOptions = new List<GameObject>();
     private PlayerMovement player;
-
-
+    private Transform playerTransform;
     void Start()
     {
         if (player == null)
@@ -27,6 +26,33 @@ public class Option : MonoBehaviour, IPowerUps
                 Debug.LogError("Option에서 PlayerMovement를 찾지 못함!");
         }
     }
+
+    public void SetPlayerTransform(Transform player)
+    {
+        if (player != null)
+        {
+            playerTransform = player;
+            Debug.Log("Option이 Player Transform을 성공적으로 받았습니다!");
+        }
+        else
+        {
+            Debug.LogError("SetPlayerTransform: 전달된 Player Transform이 null입니다!");
+        }
+    }
+
+    void Update()
+    {
+        if (playerTransform != null)
+        {
+            Vector3 offset = new Vector3(0, -0.5f, 0);  // 플레이어 위치 아래쪽으로
+            transform.position = playerTransform.position + offset;
+        }
+        else
+        {
+            Debug.LogError("Option이 Player Transform을 찾지 못했습니다!");
+        }
+    }
+
 
     public void Initialize(PlayerMovement player)
     {
@@ -85,14 +111,8 @@ public class Option : MonoBehaviour, IPowerUps
 
     private void CreateOption()
     {
-        if (optionPrefab == null)
-        {
-            Debug.LogError("Option 프리팹이 설정되지 않았습니다!");
-            return;
-        }
-
         Vector3 offset = new Vector3(0, -0.5f * currentStackCount, 0);
-        GameObject option = Instantiate(optionPrefab, player.transform.position + offset, Quaternion.identity);
+        GameObject option = Instantiate(gameObject, player.transform.position + offset, Quaternion.identity);
 
         if (option == null)
         {

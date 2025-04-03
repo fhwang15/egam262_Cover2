@@ -43,10 +43,6 @@ public class PowerManager : MonoBehaviour
             { "Option", optionPrefab },
             { "Shield", shieldPrefab }
         };
-        if (optionPrefab == null)
-        {
-            Debug.LogError("Option 프리팹이 PowerManager에 설정되지 않았습니다!");
-        }
     }
 
     public void AddPowerUp(IPowerUps powerUp)
@@ -125,12 +121,19 @@ public class PowerManager : MonoBehaviour
     {
         if (powerUpPrefabs.TryGetValue(powerUpName, out GameObject prefab))
         {
+            if (prefab == null)
+            {
+                Debug.LogError($"'{powerUpName}' 프리팹이 null입니다! PowerManager에서 설정을 확인하세요.");
+            }
             return prefab;
         }
-        return null;
+        else
+        {
+            Debug.LogError($"PowerUp '{powerUpName}' 프리팹을 찾을 수 없습니다! 확인 필요.");
+            return null;
+        }
     }
 
-    
     public bool HasPowerUp(string powerUpName)
     {
         foreach (var powerUp in activePowerUps)
@@ -259,14 +262,12 @@ public class PowerManager : MonoBehaviour
 
         public void Shoot(Transform ShootTo)
         {
-            GameObject shooooot = Object.Instantiate(missilePrefab, ShootTo.position, Quaternion.Euler(0, 0, -80));
+            GameObject shooooot = Object.Instantiate(missilePrefab, ShootTo.position, Quaternion.Euler(0, 0, -65));
             Rigidbody2D rb = shooooot.GetComponent<Rigidbody2D>();
 
             // 발사 방향 설정
             Vector2 direction = Quaternion.Euler(0, 0, -80) * Vector2.right;
             rb.AddForce(direction * GetShootingSpeed(), ForceMode2D.Impulse);
-
-            Debug.Log($"Missile 발사! 각도: {-80}");
         }
 
         public float GetShootingSpeed()
@@ -281,7 +282,7 @@ public class PowerManager : MonoBehaviour
 
         public BulletType GetBulletType()
         {
-            return BulletType.Basic;
+            return BulletType.Missile;
         }
 
     }

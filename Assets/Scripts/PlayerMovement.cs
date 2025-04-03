@@ -85,6 +85,7 @@ public class PlayerMovement : MonoBehaviour
     {
         bool hasLaser = false;
         bool hasDouble = false;
+        bool hasMissile = false;
 
         // Laser와 Double을 구분하여 처리
         foreach (IPowerUps powerUp in activePowerUps)
@@ -99,8 +100,28 @@ public class PlayerMovement : MonoBehaviour
             else if (powerUp.Name == "Double")
             {
                 hasDouble = true;
+            } else if(powerUp.Name == "Missile")
+            {
+                hasMissile = true;
             }
         }
+
+        // Missile 발사 (항상 가능)
+        if (hasMissile)
+        {
+            foreach (IPowerUps powerUp in activePowerUps)
+            {
+                if (powerUp.Name == "Missile")
+                {
+                    powerUp.Shoot(firePoint);
+                    float delay = powerUp.GetShootingDelay();
+                    yield return new WaitForSeconds(delay);
+                    Debug.Log("미사일 발사 완료!");
+                }
+            }
+
+        }
+
 
         // 기본 Bullet 발사 (Laser가 없을 때만)
         if (!hasLaser)
@@ -115,13 +136,14 @@ public class PlayerMovement : MonoBehaviour
                         float delay = powerUp.GetShootingDelay();
                         yield return new WaitForSeconds(delay);
                     }
+
+
                 }
             }
             StartCoroutine(shootingDelay());
         }
 
 
-        // Option도 같이 발사
         foreach (GameObject option in GameObject.FindGameObjectsWithTag("Option"))
         {
             Option optionComponent = option.GetComponent<Option>();
@@ -178,27 +200,31 @@ public class PlayerMovement : MonoBehaviour
                 selectedPowerUp = new Laser(powerUpManager.GetPowerUpPrefab("Laser"));
                 break;
             case 5:
+                // Option 프리팹을 직접 가져옴
                 GameObject optionPrefab = powerUpManager.GetPowerUpPrefab("Option");
-
-                // 프리팹이 null인지 확인
-                if (optionPrefab == null)
+                if (optionPrefab != null)
                 {
-                    Debug.LogError("Option 프리팹을 찾을 수 없습니다!");
-                    return;
-                }
+                    // Option 인스턴스 생성
+                    GameObject optionInstance = Instantiate(optionPrefab, transform.position, Quaternion.identity);
 
-                GameObject optionObject = Instantiate(optionPrefab, transform.position, Quaternion.identity);
-                Option optionComponent = optionObject.GetComponent<Option>();
-
-                if (optionComponent != null)
-                {
-                    optionComponent.Initialize(this);
-                    Debug.Log("Option 컴포넌트가 정상적으로 추가되었습니다!");
-                    selectedPowerUp = optionComponent;
+                    // Option 컴포넌트 가져오기
+                    Option optionComponent = optionInstance.GetComponent<Option>();
+                    if (optionComponent != null)
+                    {
+                        // Option 초기화
+                        optionComponent.Initialize(this);
+                        optionComponent.SetPlayerTransform(this.transform);  // 플레이어 위치 전달
+                        selectedPowerUp = optionComponent;
+                        Debug.Log("Option 컴포넌트가 정상적으로 추가되었습니다!");
+                    }
+                    else
+                    {
+                        Debug.LogError("생성된 Option 오브젝트에 Option 컴포넌트가 없습니다!");
+                    }
                 }
                 else
                 {
-                    Debug.LogError("생성된 Option 오브젝트에 Option 컴포넌트가 없습니다!");
+                    Debug.LogError("PowerManager에서 Option 프리팹을 가져오지 못했습니다!");
                 }
                 break;
             case 6:
