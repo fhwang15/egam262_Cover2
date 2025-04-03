@@ -13,35 +13,93 @@ public class PlayerMovement : MonoBehaviour
 
     public Bullet bulletPrefab;
 
+    public Transform firePoint;
+    private List<IPowerUps> activePowerUps;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        activePowerUps = new List<IPowerUps>();
     }
 
     // Update is called once per frame
     void Update()
     {
         //Basic Movement of the PlayerCharacter (Not in physics)
-        Vector3 movement = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0);
-        transform.Translate(movement.normalized * (originSpeed + changeInSpeed) * Time.deltaTime);
+        Move();
 
         //Attack
         if (Input.GetKeyDown(KeyCode.X))
         {
-            Attack();
+            StartCoroutine(Attack());
         }
-
 
         //get key space
         //use the power drop if they exist.
     }
-    
 
-    private void Attack()
+    private void Move()
     {
-        StartCoroutine(shootingDelay());
+        float moveX = Input.GetAxis("Horizontal");
+        float moveY = Input.GetAxis("Vertical");
+
+        Vector3 move = new Vector3(moveX, moveY, 0);
+        transform.Translate(move * originSpeed * changeInSpeed * Time.deltaTime);
+
+    }
+
+    public void AdjustSpeed(float multiplier)
+    {
+        changeInSpeed = multiplier;
+    }
+
+    public void AddBulletType(IPowerUps powerUps)
+    {
+        if (!activePowerUps.Contains(powerUps))
+        {
+            activePowerUps.Add(powerUps);
+        }
+    }
+
+    public void RemoveBulletType(IPowerUps type)
+    {
+        if (activePowerUps.Contains(type))
+        {
+            activePowerUps.Remove(type);
+        }
+    }
+
+    private IEnumerator Attack()
+    {
+        bool hasLaser =false;
+
+        foreach(IPowerUps powerUp in activePowerUps)
+        {
+            if (powerUp.Name == "Laser")
+            {
+                hasLaser = true;
+                powerUp.Shoot(firePoint);
+                float delay = powerUp.GetShootingDelay();
+                yield return new WaitForSeconds(delay);
+            }
+            yield break;
+        }
+
+        if (!hasLaser)
+        {
+            if (activePowerUps.Count == 0)
+            {
+                yield return StartCoroutine(shootingDelay());
+                yield break;
+            }
+
+            foreach (IPowerUps powerUp in activePowerUps)
+            {
+                powerUp.Shoot(firePoint);
+                float delay = powerUp.GetShootingDelay();
+                yield return new WaitForSeconds(delay);
+            }
+        }
     }
 
     IEnumerator shootingDelay()
