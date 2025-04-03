@@ -16,12 +16,19 @@ public class Bullet : MonoBehaviour
         //If it collided to something, and if it has Enemy Script,
         Enemy enemyCollided = collision.gameObject.GetComponent<Enemy>();
 
+        PlayerMovement player = collision.gameObject.GetComponent<PlayerMovement>();
+
         if (enemyCollided != null)
         {
             //If collides with Enemy and obstacle, destroySelf
             //if collides with Enemy, enemy also 
             Destroy(enemyCollided.gameObject);
             Destroy(this.gameObject);
+        }
+
+        if (player != null)
+        {
+            Physics2D.IgnoreCollision(collision.collider, GetComponent<Collider2D>());
         }
     }
 

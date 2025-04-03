@@ -22,6 +22,8 @@ public interface IPowerUps
     int currentStackCount { get; set; }
     int GroupID { get; }
     PowerUpType type { get; }
+    BulletType GetBulletType();
+
 
 
 }
